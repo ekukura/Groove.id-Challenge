@@ -100,6 +100,7 @@ def execute_update():
         update_modified_file(base_github_url, path)
     for path in deleted_files:
         delete_file(path)
+        
 
 def get_version(text):
     
