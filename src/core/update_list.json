@@ -6,7 +6,7 @@
         
     ],
     "modified files": [
-        "version_info.txt",
-        "groove_id_program.py"
+        "src/core/version_info.txt",
+        "src/core/groove_id_program.py"
     ]
 }

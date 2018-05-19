@@ -37,7 +37,29 @@ def json_read_dict(json_path):
                 
     return main_dict
     
+#NOTE THIS ALSO WILL WORK FOR NEW FILES, just wont work for DELETED files
+#TODO: add exception handling
+def update_modified_file(github_basepath, relative_path): 
+    '''
+    Assumes that the relative_path for github is also the path on your file system
+    '''
+    full_github_url = os.path.join(github_basepath, relative_path)
+    #print(full_github_url)
+                                    
+    f = urllib.request.urlopen(full_github_url)
+    raw_bytes_from_git = f.read() 
+      
+    target_filename = os.path.basename(relative_path)
+    target_dir = os.path.dirname(os.path.abspath(target_filename))
     
+    #print("target_dir = ", target_dir)
+    #print("target_filename = ", target_filename)
+    os.chdir(target_dir)
+    
+    with open(target_filename, "wb") as local_file:
+        local_file.write(raw_bytes_from_git)
+
+
 def execute_update():
     
     print("execute_update called")
@@ -50,9 +72,13 @@ def execute_update():
     deleted_files = update_info['deleted files']    
     
     print("new files: ", new_files)
-    print("modified files: ", modified_files)
+    print("modified files: ", modified_files) #assumes same core name in both
     print("deleted files: ", deleted_files)
     
+    base_url = "https://raw.githubusercontent.com/ekukura/Groove.id-Challenge/master"
+    for path in modified_files:
+        update_modified_file(base_url, path)
+
 
 def get_version(text):
     
@@ -67,8 +93,7 @@ def get_version(text):
     
 
 def get_updated_version_id():
-    
-    
+        
     url = "https://raw.githubusercontent.com/ekukura/Groove.id-Challenge/master/src/core/version_info.txt"
     f = urllib.request.urlopen(url)
     raw_bytes = f.read()      
