@@ -4,6 +4,9 @@ Created on May 19, 2018
 @author: emilykukura
 '''
 
+import os
+
+
 def execute_update():
     pass
 
@@ -18,13 +21,23 @@ def launch_main_program():
 
 def run():
     
-    version = {}
-    with open("version.py") as fp:
-        exec(fp.read(), version)
-        
-    print(version['__version__'])
+    #===========================================================================
+    # version = {}
+    # with open("version.py") as fp:
+    #     exec(fp.read(), version)
+    #     
+    # print("The current version is {}".format(version['__version__']))
+    #===========================================================================
     
-    
+    version_file_name = "version_info.txt"
+    project_source_directory = os.getcwd()
+    version_file_path = os.path.join(project_source_directory, version_file_name)
+    print("version file path: {}".format(version_file_path))
+    with open(version_file_path) as version_file:
+        version = version_file.read().strip()
+        print("version: {}".format(version))
+    #here I want to check remote version from github
+       
     #launch_main_program()
 
 
