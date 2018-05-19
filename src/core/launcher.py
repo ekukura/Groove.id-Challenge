@@ -4,7 +4,7 @@ Created on May 19, 2018
 @author: emilykukura
 '''
 
-import os, re, importlib
+import os, re, importlib, json
 import urllib.request
 
 import core.groove_id_program as main_program
@@ -15,6 +15,7 @@ from shutil import copyfile
 #TODO: add documentation for all methods
 #TODO: implement execute_update method
 #TODO: add gitignore
+#TODO: separate imports on own lines
 
 def update_file(old_file_path, new_file_path):
     '''
@@ -28,6 +29,13 @@ def update_file(old_file_path, new_file_path):
     
     copyfile(src = new_file_full_path, dst = old_file_full_path)
 
+
+def json_read_dict(json_path):
+    
+    with open(json_path, 'r') as json_file:
+        main_dict = json.load(json_file)
+                
+    return main_dict
     
     
 def execute_update():
@@ -36,7 +44,15 @@ def execute_update():
     #handle for mac, windows, and linux
     
     #first figure out how to handle on mac
-
+    update_info = json_read_dict("update_list.json")
+    new_files = update_info['new files']
+    modified_files = update_info['modified files']
+    deleted_files = update_info['deleted files']    
+    
+    print("new files: ", new_files)
+    print("modified files: ", modified_files)
+    print("deleted files: ", deleted_files)
+    
 
 def get_version(text):
     
@@ -88,6 +104,7 @@ def version_greater(version1, version2):
         
 
 def update_needed():
+    
     global __version__, __master_version__
     
     update_needed = False
@@ -130,4 +147,5 @@ def run():
 
 if __name__ == '__main__':
     
-    run()
+    #run()
+    execute_update()
