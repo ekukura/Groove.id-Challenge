@@ -21,14 +21,6 @@ def launch_main_program():
 
 def run():
     
-    #===========================================================================
-    # version = {}
-    # with open("version.py") as fp:
-    #     exec(fp.read(), version)
-    #     
-    # print("The current version is {}".format(version['__version__']))
-    #===========================================================================
-    
     version_file_name = "version_info.txt"
     project_source_directory = os.getcwd()
     version_file_path = os.path.join(project_source_directory, version_file_name)
