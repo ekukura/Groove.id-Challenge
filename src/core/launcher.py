@@ -112,7 +112,7 @@ def execute_update(json_update_list_file = "update_list.json"):
         update_modified_file(base_github_url, "src/core/launcher.py")
         remove_from_update_list(json_update_list_file, update_info, "modified files", "src/core/launcher.py")
         #os.execl(__file__)
-        os.execv(__file__, sys.argv)
+        os.execv(sys.executable, ['python'] + sys.argv)
     
     #if reach here should not be a launcher.py file
     assert("src/core/launcher.py" not in modified_files) #TODO: replace this with try/except??
