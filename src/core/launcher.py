@@ -82,7 +82,8 @@ def execute_update():
     
     for path in modified_files:
         update_modified_file(base_github_url, path)
-
+    for path in new_files:
+        update_modified_file(base_github_url, path)
 
 def get_version(text):
     
