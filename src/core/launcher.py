@@ -16,6 +16,10 @@ from shutil import copyfile
 #TODO: implement delete files functionality
 #TODO: add gitignore to repo
 #TODO: separate imports on own lines
+#TODO: make sure to mention security concerns with this method, how may be better 
+#    to create different executable files for each platform and have it call the 
+#    executable instead
+
 
 def update_file(old_file_path, new_file_path):
     '''
@@ -24,9 +28,6 @@ def update_file(old_file_path, new_file_path):
     old_file_full_path = os.path.abspath(old_file_path)
     new_file_full_path = os.path.abspath(new_file_path)
         
-    #old_file_directory = os.path.dirname(old_file_full_path) #get from old_file_paths parent
-    #old_file_name = os.path.basename(old_file_full_path) #need to store this , will put copied file in a file with this name
-    
     copyfile(src = new_file_full_path, dst = old_file_full_path)
 
 
@@ -44,8 +45,7 @@ def update_modified_file(github_basepath, relative_path):
     Assumes that the relative_path for github is also the path on your file system
     '''
     full_github_url = os.path.join(github_basepath, relative_path)
-    #print(full_github_url)
-                                    
+
     f = urllib.request.urlopen(full_github_url)
     raw_bytes_from_git = f.read() 
       
@@ -59,6 +59,19 @@ def update_modified_file(github_basepath, relative_path):
     with open(target_filename, "wb") as local_file:
         local_file.write(raw_bytes_from_git)
 
+
+#TODO: add exception handling
+def delete_file(relative_path):
+    '''
+    Again assumes same file structure on GitHub and locally
+    '''    
+    target_filename = os.path.basename(relative_path)
+    target_dir = os.path.dirname(os.path.abspath(target_filename))
+    
+    os.chdir(target_dir)   
+    os.remove(target_filename)
+    print("file removed")
+    
 
 def execute_update():
     
@@ -84,6 +97,8 @@ def execute_update():
         update_modified_file(base_github_url, path)
     for path in new_files:
         update_modified_file(base_github_url, path)
+    for path in deleted_files:
+        delete_file(path)
 
 def get_version(text):
     
