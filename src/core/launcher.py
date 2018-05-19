@@ -71,7 +71,7 @@ def delete_file(relative_path):
     
     os.chdir(target_dir)   
     os.remove(target_filename)
-    print("file removed")
+    print("file {} removed".format(target_filename))
     
 
 def execute_update():
@@ -101,6 +101,8 @@ def execute_update():
     for path in deleted_files:
         delete_file(path)
         
+    print("Program Updated")
+    
 
 def get_version(text):
     
