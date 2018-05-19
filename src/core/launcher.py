@@ -89,7 +89,6 @@ def remove_from_update_list(json_path, update_dict, list_to_remove_from, filepat
 def execute_update(json_update_list_file = "update_list.json"):
     
     print("execute_update called")
-    print("sys.argv = ", sys.argv)
     #handle for mac, windows, and linux
     
     #first figure out how to handle on mac
@@ -197,7 +196,7 @@ def run():
     global __version__, __master_version__
     need_update = update_needed()
     
-    print("current program version: {}".format(str(__version__)))
+    print("\ncurrent program version: {}".format(str(__version__)))
     print("master program version = ", str(__master_version__))
     
     if need_update:
