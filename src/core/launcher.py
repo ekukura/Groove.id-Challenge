@@ -13,8 +13,8 @@ from shutil import copyfile
 #TODO: modularize
 #TODO: add unittests (figure out how to simulate windows and linux, if possible)
 #TODO: add documentation for all methods
-#TODO: implement execute_update method
-#TODO: add gitignore
+#TODO: implement delete files functionality
+#TODO: add gitignore to repo
 #TODO: separate imports on own lines
 
 def update_file(old_file_path, new_file_path):

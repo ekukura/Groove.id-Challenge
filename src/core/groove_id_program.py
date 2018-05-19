@@ -12,4 +12,4 @@ def launch(cur_version):
     x = 5
     y = 6
     print("Performing a simple addition: {arg0} + {arg1} = {res}".format(arg0 = x, arg1 = y, res = x+y))
-    print("This version {} of the program".format(cur_version))
+    print("This is version {} of the program".format(cur_version))
