@@ -4,7 +4,7 @@ Created on May 19, 2018
 @author: emilykukura
 '''
 
-import os, re, importlib, json
+import os, re, importlib, json, sys
 import urllib.request
 
 import core.groove_id_program as main_program
@@ -110,8 +110,9 @@ def execute_update(json_update_list_file = "update_list.json"):
         #in this case, update launcher, then update update_list_json file, then re-launch
         #launcher.py
         update_modified_file(base_github_url, "src/core/launcher.py")
-        remove_from_update_list(json_update_list_file, update_info, "modified_files", "src/core/launcher.py")
-        os.execl(__file__)
+        remove_from_update_list(json_update_list_file, update_info, "modified files", "src/core/launcher.py")
+        #os.execl(__file__)
+        os.execv(__file__, sys.argv)
     
     #if reach here should not be a launcher.py file
     assert("src/core/launcher.py" not in modified_files) #TODO: replace this with try/except??
