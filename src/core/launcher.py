@@ -109,9 +109,9 @@ def execute_update(json_update_list_file = "update_list.json"):
     if "src/core/launcher.py" in modified_files: 
         #in this case, update launcher, then update update_list_json file, then re-launch
         #launcher.py
-        update_modified_file(base_github_url, "src/core/launcher.py")
         remove_from_update_list(json_update_list_file, update_info, "modified files", "src/core/launcher.py")
-        #os.execl(__file__)
+        update_modified_file(base_github_url, "src/core/launcher.py")
+        print("Relaunching launcher.py")
         os.execv(sys.executable, ['python'] + sys.argv)
     
     #if reach here should not be a launcher.py file
