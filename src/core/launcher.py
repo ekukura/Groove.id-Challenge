@@ -18,7 +18,8 @@ from shutil import copyfile
 #TODO: separate imports on own lines
 #TODO: make sure to mention security concerns with this method, how may be better 
 #    to create different executable files for each platform and have it call the 
-#    executable instead
+#    executable instead (ALT, maybe since launcher not to be changed by 
+#    user, it could be DIRECTLY read from github and used? Think about this more
 
 
 def update_file(old_file_path, new_file_path):
