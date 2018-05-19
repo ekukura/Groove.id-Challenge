@@ -174,6 +174,7 @@ def update_needed():
     
 def run():
     
+    global __version__, __master_version__
     need_update = update_needed()
     
     print("current program version: {}".format(str(__version__)))
@@ -186,6 +187,7 @@ def run():
         #replace them
         execute_update()
         importlib.reload(main_program)  #this is to capture update
+        __version__ = get_current_version_id()
     else:
         print("\nProgram is up to date")
         
