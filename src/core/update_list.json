@@ -3,10 +3,11 @@
     		
     ],
     "deleted files": [
-
+		"src/core/delete_me.txt"
     ],
     "modified files": [
         "src/core/version_info.txt",
         "src/core/groove_id_program.py"
+        "src/core/launcher.py"
     ]
 }
