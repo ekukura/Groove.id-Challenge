@@ -170,7 +170,7 @@ def run():
     else:
         print("\nProgram is up to date")
         
-    main_program.launch() 
+    main_program.launch(__version__) 
     #TODO: check if this runs in BOTH cases -- may need to RELOAD main_program module
     # can do this via import importlib: importlib.reload(main_program)
         
