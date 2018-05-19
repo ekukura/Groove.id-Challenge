@@ -73,8 +73,20 @@ def delete_file(relative_path):
     os.remove(target_filename)
     print("file {} removed".format(target_filename))
     
+    
+#TODO: add documentation for what these parameters are
+def remove_from_update_list(json_path, update_dict, list_to_remove_from, filepath_to_remove):
+    #Remove filepath_to_remove from list_to_remove_from in the update_dict stored in json_path
+    
+    list_to_update = update_dict[list_to_remove_from]
+    list_to_update.remove(filepath_to_remove)
+    update_dict[list_to_remove_from] = list_to_update
+          
+    with open(json_path, 'w') as json_file:
+        json.dump(update_dict, json_file, indent=4)
 
-def execute_update():
+
+def execute_update(json_update_list_file = "update_list.json"):
     
     print("execute_update called")
     #handle for mac, windows, and linux
@@ -84,8 +96,8 @@ def execute_update():
     #pull most recent update_list from github to determine what needs modification
     base_github_url = "https://raw.githubusercontent.com/ekukura/Groove.id-Challenge/master"
     update_modified_file(base_github_url, "src/core/update_list.json")
-    
-    update_info = json_read_dict("update_list.json") #this needs to be PULLED from git
+     
+    update_info = json_read_dict(json_update_list_file) #this needs to be PULLED from git
     new_files = update_info['new files']
     modified_files = update_info['modified files']
     deleted_files = update_info['deleted files']    
@@ -94,6 +106,15 @@ def execute_update():
     print("modified files: ", modified_files) #assumes same core name in both
     print("deleted files: ", deleted_files)
     
+    if "src/core/launcher.py" in modified_files: 
+        #in this case, update launcher, then update update_list_json file, then re-launch
+        #launcher.py
+        update_modified_file(base_github_url, "src/core/launcher.py")
+        remove_from_update_list(json_update_list_file, update_info, "modified_files", "src/core/launcher.py")
+        os.execl(__file__)
+    
+    #if reach here should not be a launcher.py file
+    assert("src/core/launcher.py" not in modified_files) #TODO: replace this with try/except??
     for path in modified_files:
         update_modified_file(base_github_url, path)
     for path in new_files:
