@@ -89,6 +89,7 @@ def remove_from_update_list(json_path, update_dict, list_to_remove_from, filepat
 def execute_update(json_update_list_file = "update_list.json"):
     
     print("execute_update called")
+    print("sys.argv = ", sys.argv)
     #handle for mac, windows, and linux
     
     #first figure out how to handle on mac
@@ -106,16 +107,13 @@ def execute_update(json_update_list_file = "update_list.json"):
     print("modified files: ", modified_files) #assumes same core name in both
     print("deleted files: ", deleted_files)
     
-    if "src/core/launcher.py" in modified_files: 
-        #in this case, update launcher, then update update_list_json file, then re-launch
-        #launcher.py
-        remove_from_update_list(json_update_list_file, update_info, "modified files", "src/core/launcher.py")
+    if "src/core/launcher.py" in modified_files and 'launcher updated' not in sys.argv: 
+        #in this case, update launcher, then re-launch launcher.py to update remaining files
+        #remove_from_update_list(json_update_list_file, update_info, "modified files", "src/core/launcher.py")
         update_modified_file(base_github_url, "src/core/launcher.py")
         print("Relaunching launcher.py")
-        os.execv(sys.executable, ['python'] + sys.argv)
+        os.execv(sys.executable, ['python'] + sys.argv + ['launcher updated'])
     
-    #if reach here should not be a launcher.py file
-    assert("src/core/launcher.py" not in modified_files) #TODO: replace this with try/except??
     for path in modified_files:
         update_modified_file(base_github_url, path)
     for path in new_files:
