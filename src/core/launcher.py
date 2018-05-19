@@ -66,7 +66,12 @@ def execute_update():
     #handle for mac, windows, and linux
     
     #first figure out how to handle on mac
-    update_info = json_read_dict("update_list.json")
+    
+    #pull most recent update_list from github to determine what needs modification
+    base_github_url = "https://raw.githubusercontent.com/ekukura/Groove.id-Challenge/master"
+    update_modified_file(base_github_url, "src/core/update_list.json")
+    
+    update_info = json_read_dict("update_list.json") #this needs to be PULLED from git
     new_files = update_info['new files']
     modified_files = update_info['modified files']
     deleted_files = update_info['deleted files']    
@@ -75,9 +80,8 @@ def execute_update():
     print("modified files: ", modified_files) #assumes same core name in both
     print("deleted files: ", deleted_files)
     
-    base_url = "https://raw.githubusercontent.com/ekukura/Groove.id-Challenge/master"
     for path in modified_files:
-        update_modified_file(base_url, path)
+        update_modified_file(base_github_url, path)
 
 
 def get_version(text):
