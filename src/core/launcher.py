@@ -14,20 +14,6 @@ from urllib.error import HTTPError
 import core.groove_id_program as main_program
 
 
-#TODO: (1) Exception handling 
-#TODO: (2) add explanation to README with info on assumptions of program (e.g. structure)
-#    and other details 
-#TODO: (3) make sure to mention security concerns with this method, how may be better 
-#    to create different executable files for each platform and have it call the 
-#    executable instead (ALT, maybe since launcher not to be changed by 
-#    user, it could be DIRECTLY read from github and used? Think about this more
-#    also mention list of what would add to improve (e.g. tests to ensure platform
-#    independence, and that updates actually operate as expected) (POSSIBLY JUST MAKE
-#    A FILE LISTING AREAS FOR IMPROVEMENT / CONCERNS instead of directly in e-mail body)
-#    - should really have separate modified and new file methods, and modified
-#    - should check to make sure that file is also on local path
-
-
 def get_file_basename_from_relative_url(relative_path):
     '''
     
@@ -73,9 +59,8 @@ def update_file(github_basepath, relative_path, is_new = False):
         
         os.chdir(target_dir)
         
-        if not is_new: #e.g. is a modified file
+        if not is_new: #i.e. is a modified file
             file_exists = os.path.isfile(target_filename)  #add code to ensure that the file is also located in this path
-            print("file_exists = ", file_exists)
             if not file_exists:
                 print("\nWarning, the file {} does not exist locally, and so it was created, not modified\n"
                       .format(target_filename), file=sys.stderr)
