@@ -1,1 +1,1 @@
-version_id = 2.5
+version_id = 2.6

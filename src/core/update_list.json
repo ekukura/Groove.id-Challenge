@@ -1,11 +1,13 @@
 {
     "new files": [
+    
     ],
     "deleted files": [
 
     ],
     "modified files": [
         "src/core/version_info.txt",
+        "src/core/launcher_tests.py",
         "src/core/groove_id_program.py",
         "src/core/launcher.py"
     ]
