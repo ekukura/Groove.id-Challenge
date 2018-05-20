@@ -26,7 +26,16 @@ class Test(unittest.TestCase):
         
         res = launcher.get_version("version_id = 1.0.12")
         self.assertEqual(res, "1.0.12")
-
+        
+        
+    def test_is_valid_version(self):
+        
+        versions_valid_pairs = [("1.2.4", True),("4", True),
+                               ("1.2..4", False),(" 1.2.4", False)]
+        
+        for pair in versions_valid_pairs:
+            self.assertTrue(launcher.is_valid_version(pair[0]) == pair[1])
+            
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.test_version_greater']

@@ -4,48 +4,58 @@ Created on May 19, 2018
 @author: emilykukura
 '''
 
-import os, re, importlib, json, sys
+import os, sys
+import re
+import importlib
+import json
 import urllib.request
 from shutil import copyfile
 
 import core.groove_id_program as main_program
 
 
-#TODO: modularize
-#TODO: add unittests (figure out how to simulate windows and linux, if possible)
-#TODO: add documentation for all methods
-#TODO: implement delete files functionality
-#TODO: add gitignore to repo
-#TODO: separate imports on own lines
+#TODO: add more unittests (figure out how to simulate windows and linux, if possible)
+#TODO: Exception handling - in particular, what if new file or modified file in 
+#    update list which isnt actually in local program
+#TODO: platform dependency in methods using relative_path
+#TODO: add README to repo with info on assumptions of program (e.g. structure), and other
+#    details
+#TODO: add gitignore to repo?
 #TODO: make sure to mention security concerns with this method, how may be better 
 #    to create different executable files for each platform and have it call the 
 #    executable instead (ALT, maybe since launcher not to be changed by 
 #    user, it could be DIRECTLY read from github and used? Think about this more
-
-
-def update_file(old_file_path, new_file_path):
-    '''
-    Update file at location old_file_path to contain contents of new_file_path
-    '''
-    old_file_full_path = os.path.abspath(old_file_path)
-    new_file_full_path = os.path.abspath(new_file_path)
-        
-    copyfile(src = new_file_full_path, dst = old_file_full_path)
+#    also mention list of what would add to improve (e.g. tests to ensure platform
+#    independence, and that updates actually operate as expected)
 
 
 def json_read_dict(json_path):
+    '''
+    :param json_path: location of json file to read from
+    :type json_path: str
     
+    :returns: the dictionary contained in the json file 
+    '''
     with open(json_path, 'r') as json_file:
         main_dict = json.load(json_file)
                 
     return main_dict
     
-#NOTE THIS ALSO WILL WORK FOR NEW FILES, just wont work for DELETED files
-#TODO: add exception handling
+    
 def update_modified_file(github_basepath, relative_path): 
     '''
-    Assumes that the relative_path for github is also the path on your file system
+    :param github_basepath: base url for raw data files contained in the master branch on GitHub repo
+    :type github_basepath: str
+    :param relative_path: string of form src/core/file_name 
+        (since currently ALL files in src/core package)
+    :type relative_path: str
+    
+    Assumes same file structure on GitHub and locally.
+    Updates local version of file_name to a copy of the version of file_name on GitHub repo.
+    Also works when adding a new file -- will just create a file with name file_name where 
+    expected.
     '''
+    
     print("updating the relative file ", relative_path)
     full_github_url = os.path.join(github_basepath, relative_path)
 
@@ -55,67 +65,59 @@ def update_modified_file(github_basepath, relative_path):
     target_filename = os.path.basename(relative_path)
     target_dir = os.path.dirname(os.path.abspath(target_filename))
     
-    #print("target_dir = ", target_dir)
-    #print("target_filename = ", target_filename)
     os.chdir(target_dir)
     
     with open(target_filename, "wb") as local_file:
         local_file.write(raw_bytes_from_git)
 
 
-#TODO: add exception handling
 def delete_file(relative_path):
     '''
-    Again assumes same file structure on GitHub and locally
+    :param relative_path: string of form src/core/file_name 
+        (since currently ALL files in src/core package)
+    :type relative_path: str
+    
+    Assumes same file structure on GitHub and locally.
+    Deletes the file_name from the local program.
     '''    
     target_filename = os.path.basename(relative_path)
     target_dir = os.path.dirname(os.path.abspath(target_filename))
     
     os.chdir(target_dir)   
     os.remove(target_filename)
-    print("file {} removed".format(target_filename))
+    print("File {} removed from program\n".format(target_filename))
     
     
-#TODO: add documentation for what these parameters are
-def remove_from_update_list(json_path, update_dict, list_to_remove_from, filepath_to_remove):
-    #Remove filepath_to_remove from list_to_remove_from in the update_dict stored in json_path
-    
-    list_to_update = update_dict[list_to_remove_from]
-    list_to_update.remove(filepath_to_remove)
-    update_dict[list_to_remove_from] = list_to_update
-          
-    with open(json_path, 'w') as json_file:
-        json.dump(update_dict, json_file, indent=4)
-
-
 def execute_update(json_update_list_file = "update_list.json"):
+    '''
+    :param json_update_list_file: file containing a dictionary with the files that are new
+        since last updated, modified since last update, and have been removed since last update
+    :type json_update_list_file: str
+    '''
+    print("Updating...")
     
-    print("execute_update called")
-    #handle for mac, windows, and linux
-    
-    #first figure out how to handle on mac
-    
-    #pull most recent update_list from github to determine what needs modification
+    #First pull most recent update_list from github to get accurate information about
+    #what needs to be updated
     base_github_url = "https://raw.githubusercontent.com/ekukura/Groove.id-Challenge/master"
-    update_modified_file(base_github_url, "src/core/update_list.json")
+    update_modified_file(base_github_url, "src/core/" + json_update_list_file)
      
-    update_info = json_read_dict(json_update_list_file) #this needs to be PULLED from git
+    #next read the information about what to be updated from the update_list json file
+    update_info = json_read_dict(json_update_list_file) 
     new_files = update_info['new files']
     modified_files = update_info['modified files']
     deleted_files = update_info['deleted files']    
     
-    if 'launcher updated' in sys.argv:
+    if 'launcher updated' in sys.argv: #this means we have already updated the launcher.py file
         modified_files.remove("src/core/launcher.py")
         
-    print("new files: ", new_files)
-    print("modified files: ", modified_files) #assumes same core name in both
-    print("deleted files: ", deleted_files)
+    print("Will be adding the new files: ", new_files)
+    print("Will be updating the files: ", modified_files) 
+    print("Will be deleting the files: ", deleted_files)
     
     if "src/core/launcher.py" in modified_files:
         #in this case, update launcher, then re-launch launcher.py to update remaining files
-        #remove_from_update_list(json_update_list_file, update_info, "modified files", "src/core/launcher.py")
         update_modified_file(base_github_url, "src/core/launcher.py")
-        print("Relaunching launcher.py")
+        print("Re-launching launcher.py...")
         os.execv(sys.executable, ['python'] + sys.argv + ['launcher updated'])
       
     for path in modified_files:
@@ -125,11 +127,19 @@ def execute_update(json_update_list_file = "update_list.json"):
     for path in deleted_files:
         delete_file(path)
         
-    print("Program Updated")
+    print("\nProgram Updated.\n")
     
 
+
 def get_version(text):
+    '''
+    :type text: str
+    :returns: extracted version_id from the input string text
+    :rtype: str
     
+    Example: get_version("version_id = 1.2.4 ") = "1.2.4"
+    
+    '''
     version_match = re.search("(?<=version_id = )\d+(.\d+)*(?=\s|$)", text)
     #this ensures 'version_id = ' comes before the value parsed, and that afterwords there
     #is either a space or end of line (so, e.g. 1.0.12..3 won't be matched b/c of the double dot
@@ -141,7 +151,9 @@ def get_version(text):
     
 
 def get_updated_version_id():
-        
+    '''
+    :returns: the version id stored in the version_info.txt file on github repo
+    '''
     url = "https://raw.githubusercontent.com/ekukura/Groove.id-Challenge/master/src/core/version_info.txt"
     f = urllib.request.urlopen(url)
     raw_bytes = f.read()      
@@ -164,13 +176,19 @@ def get_current_version_id():
 
 
 def is_valid_version(version_str):
+    '''
+    :type version_str: str
+    :return true if and only if version_str is a validly-formatted version id
+    '''
+    if not version_str: #e.g. if version_str == None
+        return False
+    
     version_format = re.compile("^\d+(.\d+)*$")
     version_valid = version_format.match(version_str)
     if version_valid: #e.g. version_valid is NOT None, so match made
         return True
     else:
         return False
-
 
 
 
@@ -218,7 +236,6 @@ def version_greater(version1, version2):
     else:
         raise ValueError("versions given do not match the correct version format")
 
-    
   
 
 def update_needed():
@@ -227,22 +244,26 @@ def update_needed():
     
     update_needed = False
     
-    __version__ = get_current_version_id()
     __master_version__ = get_updated_version_id() #want to check remote version from github
+    __version__ = get_current_version_id()
 
-    if __master_version__ and __version__: #if both these are NOT None
+    if is_valid_version(__master_version__) and is_valid_version(__version__): 
         
         if version_greater(__master_version__,__version__):
             update_needed = True
             
-    else: #TODO: find better name for Exception here; possibly separate handling
-        raise Exception("unable to extract current or master version in appropriate form")
-    
+    else: 
+        if not is_valid_version(__master_version__):
+            raise Exception("unable to extract version from github repo in expected format")
+        else: #__version__ invalid
+            raise Exception("unable to extract version from local version_info.txt in expected format")            
+            
     return update_needed
 
     
 def run():
     
+    #check for update
     global __version__, __master_version__
     need_update = update_needed()
     
@@ -250,21 +271,19 @@ def run():
     print("master program version = ", str(__master_version__))
     
     if need_update:
-        print("\nTime to update!")
-        #TODO: (possibly) BEFORE updating, send message to user indicating they will 
-        #need update and asking for permission/warning it will destroy old files and 
-        #replace them
+        print("\nTime for an update...")
         execute_update()
-        importlib.reload(main_program)  #this is to capture update
+        importlib.reload(main_program)  #this is to capture update's changes to the main_program
         __version__ = get_current_version_id()
     else:
         print("\nProgram is up to date")
         
+    #Once reach this point, have either updated already or don't need an update  
     main_program.launch(__version__) 
-    #TODO: check if this runs in BOTH cases -- may need to RELOAD main_program module
-    # can do this via import importlib: importlib.reload(main_program)
+
         
 
 if __name__ == '__main__':
     
     run()
+
