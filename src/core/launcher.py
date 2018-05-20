@@ -45,6 +45,7 @@ def update_modified_file(github_basepath, relative_path):
     '''
     Assumes that the relative_path for github is also the path on your file system
     '''
+    print("updating the relative file ", relative_path)
     full_github_url = os.path.join(github_basepath, relative_path)
 
     f = urllib.request.urlopen(full_github_url)
@@ -102,13 +103,13 @@ def execute_update(json_update_list_file = "update_list.json"):
     modified_files = update_info['modified files']
     deleted_files = update_info['deleted files']    
     
+    if 'launcher updated' in sys.argv:
+        modified_files.remove("src/core/launcher.py")
+        
     print("new files: ", new_files)
     print("modified files: ", modified_files) #assumes same core name in both
     print("deleted files: ", deleted_files)
     
-    if 'launcher updated' in sys.argv:
-        modified_files.remove("src/core/launcher.py")
-        
     if "src/core/launcher.py" in modified_files:
         #in this case, update launcher, then re-launch launcher.py to update remaining files
         #remove_from_update_list(json_update_list_file, update_info, "modified files", "src/core/launcher.py")
