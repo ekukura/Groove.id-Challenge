@@ -17,9 +17,22 @@ the clients version (though if it had been modified in the update to version 2.1
 and update_list.json files, are located in the src/core package. This would need to be the case on the client systems as well.
 
 
-############################
+####################################################################################
 
 The program itself is launched from launcher.py, which will check if an update is needed or not. 
 If needed, an update will be performed (including, if necessary, an update to launcher.py itself).
 After the update is performed (or if no update was needed), launcher.py will call the main program 
 (groove_id_program) - explicitly  main_program.launch(__version__)  (where main_program is an alias for groove_id_program) is called. main_program performs a few tasks and prints the current version id.
+
+####################################################################################
+
+Other concerns/areas for improvement:
+
+(1) The fact that the client has access to the entire update script is probably not the best idea
+for a program. They could easily corrupt this file so that it no longer is able to receive the desired updates.
+It would probably be better to run the update from an executable file (In thoery, this executable could probably just pull an update.py python script from the web which is very similar to launcher.py, and then execute this script using e.g. python udpate.py )
+(2) More unit-tests would certainly be needed for a production-quality program. In particular:
+  (a) tests to ensure platform independence
+  (b) tests to ensure that the updates are actually performing as expected
+(3) Production-quality code should probably have a bit more exception handling than what I have here
+
