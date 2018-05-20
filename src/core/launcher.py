@@ -14,33 +14,20 @@ from shutil import copyfile
 import core.groove_id_program as main_program
 
 
-#TODO: add more unittests (figure out how to simulate windows and linux, if possible)
-#TODO: Exception handling - in particular, what if new file or modified file in 
+#TODO: (5) add more unittests if time (figure out how to simulate windows and linux, if possible)
+#TODO: (2) Exception handling - in particular, what if new file or modified file in 
 #    update list which isnt actually in local program
-#TODO: platform dependency in methods using relative_path
-#TODO: add README to repo with info on assumptions of program (e.g. structure), and other
-#    details
-#TODO: add gitignore to repo?
-#TODO: make sure to mention security concerns with this method, how may be better 
+#TODO: (1) platform dependency in methods using relative_path
+#TODO: (3) add explanation to README with info on assumptions of program (e.g. structure)
+#    and other details 
+#TODO: (4) make sure to mention security concerns with this method, how may be better 
 #    to create different executable files for each platform and have it call the 
 #    executable instead (ALT, maybe since launcher not to be changed by 
 #    user, it could be DIRECTLY read from github and used? Think about this more
 #    also mention list of what would add to improve (e.g. tests to ensure platform
-#    independence, and that updates actually operate as expected)
+#    independence, and that updates actually operate as expected) (POSSIBLY JUST MAKE
+#    A FILE LISTING AREAS FOR IMPROVEMENT / CONCERNS)
 
-
-def json_read_dict(json_path):
-    '''
-    :param json_path: location of json file to read from
-    :type json_path: str
-    
-    :returns: the dictionary contained in the json file 
-    '''
-    with open(json_path, 'r') as json_file:
-        main_dict = json.load(json_file)
-                
-    return main_dict
-    
     
 def update_modified_file(github_basepath, relative_path): 
     '''
@@ -87,7 +74,20 @@ def delete_file(relative_path):
     os.remove(target_filename)
     print("File {} removed from program\n".format(target_filename))
     
+
+def json_read_dict(json_path):
+    '''
+    :param json_path: location of json file to read from
+    :type json_path: str
     
+    :returns: the dictionary contained in the json file 
+    '''
+    with open(json_path, 'r') as json_file:
+        main_dict = json.load(json_file)
+                
+    return main_dict
+    
+        
 def execute_update(json_update_list_file = "update_list.json"):
     '''
     :param json_update_list_file: file containing a dictionary with the files that are new
