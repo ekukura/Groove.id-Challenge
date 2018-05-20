@@ -14,9 +14,7 @@ from urllib.error import HTTPError
 import core.groove_id_program as main_program
 
 
-#TODO: (4) add more unittests if time 
-#TODO: (1) Exception handling - in particular, what if modified file in 
-#    update list which isn't actually in local program (or worse, isn't on repo)
+#TODO: (1) Exception handling 
 #TODO: (2) add explanation to README with info on assumptions of program (e.g. structure)
 #    and other details 
 #TODO: (3) make sure to mention security concerns with this method, how may be better 
@@ -26,12 +24,14 @@ import core.groove_id_program as main_program
 #    also mention list of what would add to improve (e.g. tests to ensure platform
 #    independence, and that updates actually operate as expected) (POSSIBLY JUST MAKE
 #    A FILE LISTING AREAS FOR IMPROVEMENT / CONCERNS instead of directly in e-mail body)
+#    - should really have separate modified and new file methods, and modified
+#    - should check to make sure that file is also on local path
 
 
-def get_file_basename_from_mac_path(relative_path):
+def get_file_basename_from_relative_url(relative_path):
     '''
     
-    :param relative_path: of form xxx/xxx/xxx/file_name (e.g. mac file path form)
+    :param relative_path: of form xxx/xxx/xxx/file_name (e.g. relative URL path form)
     :type relative_path: str
     
     :returns file_name
@@ -43,7 +43,7 @@ def get_file_basename_from_mac_path(relative_path):
     return file_name 
 
 
-def update_modified_file(github_basepath, relative_path): 
+def update_file(github_basepath, relative_path, is_new = False): 
     '''
     :param github_basepath: base url for raw data files contained in the master branch on GitHub repo
     :type github_basepath: str
@@ -52,9 +52,8 @@ def update_modified_file(github_basepath, relative_path):
     :type relative_path: str
     
     Assumes same file structure on GitHub and locally.
-    Updates local version of file_name to a copy of the version of file_name on GitHub repo.
-    Also works when adding a new file -- will just create a file with name file_name where 
-    expected.
+    If is_new = False, updates local version of file_name to a copy of the version of file_name on GitHub repo.
+    If is_new = True will just create a file with name file_name where expected.
     '''
     
     print("updating the file: ", relative_path)
@@ -69,15 +68,20 @@ def update_modified_file(github_basepath, relative_path):
     else:
         raw_bytes_from_git = f.read() 
           
-        target_filename = get_file_basename_from_mac_path(relative_path)
+        target_filename = get_file_basename_from_relative_url(relative_path)
         target_dir = os.path.dirname(os.path.abspath(target_filename))
         
         os.chdir(target_dir)
         
+        if not is_new: #e.g. is a modified file
+            file_exists = os.path.isfile(target_filename)  #add code to ensure that the file is also located in this path
+            print("file_exists = ", file_exists)
+            if not file_exists:
+                print("\nWarning, the file {} does not exist locally, and so it was created, not modified\n"
+                      .format(target_filename), file=sys.stderr)
+   
         with open(target_filename, "wb") as local_file:
-            local_file.write(raw_bytes_from_git)
-            
-        
+            local_file.write(raw_bytes_from_git)  
 
 
 def delete_file(relative_path):
@@ -89,7 +93,7 @@ def delete_file(relative_path):
     Assumes same file structure on GitHub and locally.
     Deletes the file_name from the local program.
     '''    
-    target_filename = get_file_basename_from_mac_path(relative_path)
+    target_filename = get_file_basename_from_relative_url(relative_path)
     target_dir = os.path.dirname(os.path.abspath(target_filename))
     
     os.chdir(target_dir)   
@@ -121,7 +125,7 @@ def execute_update(json_update_list_file = "update_list.json"):
     #First pull most recent update_list from github to get accurate information about
     #what needs to be updated
     base_github_url = "https://raw.githubusercontent.com/ekukura/Groove.id-Challenge/master"
-    update_modified_file(base_github_url, "src/core/" + json_update_list_file)
+    update_file(base_github_url, "src/core/" + json_update_list_file)
      
     #next read the information about what to be updated from the update_list json file
     update_info = json_read_dict(json_update_list_file) 
@@ -138,14 +142,14 @@ def execute_update(json_update_list_file = "update_list.json"):
     
     if "src/core/launcher.py" in modified_files:
         #in this case, update launcher, then re-launch launcher.py to update remaining files
-        update_modified_file(base_github_url, "src/core/launcher.py")
+        update_file(base_github_url, "src/core/launcher.py")
         print("Re-launching launcher.py...")
         os.execv(sys.executable, ['python'] + sys.argv + ['launcher updated'])
       
     for path in modified_files:
-        update_modified_file(base_github_url, path)
+        update_file(base_github_url, path)
     for path in new_files:
-        update_modified_file(base_github_url, path)
+        update_file(base_github_url, path)
     for path in deleted_files:
         delete_file(path)
         
