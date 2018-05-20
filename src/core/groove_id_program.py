@@ -11,7 +11,7 @@ def perform_tasks():
     x = 5
     y = 6
     print("Performing a simple addition: {arg0} + {arg1} = {res}".format(arg0 = x, arg1 = y, res = x+y))
-    print([i for i in range(4)])
+    print([i for i in range(10)])
     
 
 def launch(cur_version):
