@@ -9,6 +9,7 @@
         "src/core/version_info.txt",
         "src/core/launcher_tests.py",
         "src/core/groove_id_program.py",
-        "src/core/launcher.py"
+        "src/core/launcher.py",
+        "src/core/test_new.txt"
     ]
 }
