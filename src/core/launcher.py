@@ -267,11 +267,4 @@ def run():
 
 if __name__ == '__main__':
     
-    #run()
-   
-    print(version_greater("4", "3") )
-    print(version_greater("1.2.4", "1.2.3") )
-    print(version_greater("1.2.4", "1.2.3.3") )
-    print(version_greater("1.2.4", "1.3.4") )
-    print(version_greater("1.2.3.3", "1.2.3") ) 
-    print(version_greater("1.2.3", "1.2.3.3") )
+    run()
