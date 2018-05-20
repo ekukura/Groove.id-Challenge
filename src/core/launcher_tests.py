@@ -8,6 +8,11 @@ import core.launcher as launcher
 
 class Test(unittest.TestCase):
 
+    def test_get_file_basename_from_mac_path(self):
+        
+        res = launcher.get_file_basename_from_mac_path("src/abc/dog.txt")
+        self.assertEqual(res, "dog.txt")
+        
 
     def test_version_greater(self):
         

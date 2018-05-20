@@ -9,18 +9,16 @@ import re
 import importlib
 import json
 import urllib.request
-from shutil import copyfile
 
 import core.groove_id_program as main_program
 
 
-#TODO: (5) add more unittests if time (figure out how to simulate windows and linux, if possible)
-#TODO: (2) Exception handling - in particular, what if new file or modified file in 
+#TODO: (4) add more unittests if time (figure out how to simulate windows and linux, if possible)
+#TODO: (1) Exception handling - in particular, what if new file or modified file in 
 #    update list which isnt actually in local program
-#TODO: (1) platform dependency in methods using relative_path
-#TODO: (3) add explanation to README with info on assumptions of program (e.g. structure)
+#TODO: (2) add explanation to README with info on assumptions of program (e.g. structure)
 #    and other details 
-#TODO: (4) make sure to mention security concerns with this method, how may be better 
+#TODO: (3) make sure to mention security concerns with this method, how may be better 
 #    to create different executable files for each platform and have it call the 
 #    executable instead (ALT, maybe since launcher not to be changed by 
 #    user, it could be DIRECTLY read from github and used? Think about this more
@@ -29,6 +27,23 @@ import core.groove_id_program as main_program
 #    A FILE LISTING AREAS FOR IMPROVEMENT / CONCERNS)
 
     
+
+def get_file_basename_from_mac_path(relative_path):
+    '''
+    
+    :param relative_path: of form xxx/xxx/xxx/file_name (e.g. mac file path form)
+    :type relative_path: str
+    
+    :returns file_name
+    '''
+    
+    components = relative_path.split("/")
+    file_name = components[-1]
+
+    return file_name 
+
+
+
 def update_modified_file(github_basepath, relative_path): 
     '''
     :param github_basepath: base url for raw data files contained in the master branch on GitHub repo
@@ -43,13 +58,13 @@ def update_modified_file(github_basepath, relative_path):
     expected.
     '''
     
-    print("updating the relative file ", relative_path)
+    print("updating the file: ", relative_path)
     full_github_url = os.path.join(github_basepath, relative_path)
 
     f = urllib.request.urlopen(full_github_url)
     raw_bytes_from_git = f.read() 
       
-    target_filename = os.path.basename(relative_path)
+    target_filename = get_file_basename_from_mac_path(relative_path)
     target_dir = os.path.dirname(os.path.abspath(target_filename))
     
     os.chdir(target_dir)
@@ -67,7 +82,7 @@ def delete_file(relative_path):
     Assumes same file structure on GitHub and locally.
     Deletes the file_name from the local program.
     '''    
-    target_filename = os.path.basename(relative_path)
+    target_filename = get_file_basename_from_mac_path(relative_path)
     target_dir = os.path.dirname(os.path.abspath(target_filename))
     
     os.chdir(target_dir)   
