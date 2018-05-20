@@ -5,6 +5,7 @@ Created on May 19, 2018
 '''
 import unittest
 import core.launcher as launcher
+from urllib.error import HTTPError
 
 class Test(unittest.TestCase):
 
@@ -40,7 +41,16 @@ class Test(unittest.TestCase):
         
         for pair in versions_valid_pairs:
             self.assertTrue(launcher.is_valid_version(pair[0]) == pair[1])
-            
+       
+       
+    def test_update_modified_file_error(self):
+        
+        base_github_url = "https://raw.githubusercontent.com/ekukura/Groove.id-Challenge/master"
+        invalid_path = "src/core/nonexistent.txt"
+        
+        with self.assertRaises(HTTPError):
+            launcher.update_modified_file(base_github_url, invalid_path)
+        
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.test_version_greater']
