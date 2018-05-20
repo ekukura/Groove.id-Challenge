@@ -7,11 +7,12 @@ import unittest
 import core.launcher as launcher
 from urllib.error import HTTPError
 
+
 class Test(unittest.TestCase):
 
     def test_get_file_basename_from_mac_path(self):
         
-        res = launcher.get_file_basename_from_mac_path("src/abc/dog.txt")
+        res = launcher.get_file_basename_from_relative_url("src/abc/dog.txt")
         self.assertEqual(res, "dog.txt")
         
 
@@ -49,7 +50,7 @@ class Test(unittest.TestCase):
         invalid_path = "src/core/nonexistent.txt"
         
         with self.assertRaises(HTTPError):
-            launcher.update_modified_file(base_github_url, invalid_path)
+            launcher.update_file(base_github_url, invalid_path)
         
 
 if __name__ == "__main__":
