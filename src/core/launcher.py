@@ -6,9 +6,10 @@ Created on May 19, 2018
 
 import os, re, importlib, json, sys
 import urllib.request
+from shutil import copyfile
 
 import core.groove_id_program as main_program
-from shutil import copyfile
+
 
 #TODO: modularize
 #TODO: add unittests (figure out how to simulate windows and linux, if possible)
@@ -129,12 +130,12 @@ def execute_update(json_update_list_file = "update_list.json"):
 
 def get_version(text):
     
-    version_match = re.search("(?<=version_id = )\d+(.\d+)+(?=\s|$)", text)
+    version_match = re.search("(?<=version_id = )\d+(.\d+)*(?=\s|$)", text)
     #this ensures 'version_id = ' comes before the value parsed, and that afterwords there
     #is either a space or end of line (so, e.g. 1.0.12..3 won't be matched b/c of the double dot
     #In general, ensures the version_id parsed is a dot-separated string of integers
     if version_match:
-        return float(version_match.group(0))
+        return version_match.group(0).strip()
     else:
         return None
     
@@ -162,18 +163,63 @@ def get_current_version_id():
     return version
 
 
-def version_greater(version1, version2):
-    '''
-    :returns: true if version1 > version2 and false otherwise
-    '''
-    #first validate version1 and version2 in correct form
-    #TODO: this is not actually correct, versions WONT be floats unless only of form x.y
-    # -- implement function to determine if newer  -- but for now this is fine
-    if version1 > version2:
+def is_valid_version(version_str):
+    version_format = re.compile("^\d+(.\d+)*$")
+    version_valid = version_format.match(version_str)
+    if version_valid: #e.g. version_valid is NOT None, so match made
         return True
     else:
         return False
+
+
+
+
+def version_greater(version1, version2):
+    '''
+    :type version1: str
+    :type version2: str
+    :returns: true if version1 > version2 and false otherwise   
+    
+    Example:
+    version_greater(1.2.4, 1.2.3) = True
+    version_greater(1.2.4, 1.2.3.3) = True
+    version_greater(1.2.4, 1.3.4) = False
+    version_greater(1.2.3.3, 1.2.3) = True
+    version_greater(1.2.3, 1.2.3.3) = False
+    '''
+    
+    #first validate version1 and version2 in correct form
+    if is_valid_version(version1) and is_valid_version(version2):
+        #get first integer value before dot, if one greater than other done, else remove 
+        cur_v1_match = re.match("\d+", version1)
+        cur_v2_match = re.match("\d+", version2)
+        cur_v1_val = int(cur_v1_match.group(0))
+        cur_v2_val = int(cur_v2_match.group(0))
         
+        if cur_v1_val > cur_v2_val:
+            return True
+        elif cur_v1_val < cur_v2_val:
+            return False
+        else: #so cur_v1_val = cur_v2_val
+            #handle base case where at end of one of versions and STILL match, e.g. if v1 = 2.3.3 and v2 = 2.3.3.5
+            if (version1.isdigit() or version2.isdigit()):  
+                if version1.isdigit(): 
+                    #then have that they are equal until v1's last digit, so either they are equal or v2 is greater (has further sections)
+                    return False
+                else: #so version2 isdigit and version1 IS NOT, e.g. version 1 has further sections
+                    return True
+               
+            else:
+            #these give ending indexes of the current section of version
+                cur_v1_end = cur_v1_match.span()[1] 
+                cur_v2_end = cur_v2_match.span()[1]
+                return version_greater(version1[cur_v1_end + 1:], version2[cur_v2_end + 1:])
+           
+    else:
+        raise ValueError("versions given do not match the correct version format")
+
+    
+  
 
 def update_needed():
     
@@ -221,4 +267,11 @@ def run():
 
 if __name__ == '__main__':
     
-    run()
+    #run()
+   
+    print(version_greater("4", "3") )
+    print(version_greater("1.2.4", "1.2.3") )
+    print(version_greater("1.2.4", "1.2.3.3") )
+    print(version_greater("1.2.4", "1.3.4") )
+    print(version_greater("1.2.3.3", "1.2.3") ) 
+    print(version_greater("1.2.3", "1.2.3.3") )
