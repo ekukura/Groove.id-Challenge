@@ -9,13 +9,14 @@ import re
 import importlib
 import json
 import urllib.request
+from urllib.error import HTTPError
 
 import core.groove_id_program as main_program
 
 
-#TODO: (4) add more unittests if time (figure out how to simulate windows and linux, if possible)
-#TODO: (1) Exception handling - in particular, what if new file or modified file in 
-#    update list which isnt actually in local program
+#TODO: (4) add more unittests if time 
+#TODO: (1) Exception handling - in particular, what if modified file in 
+#    update list which isn't actually in local program (or worse, isn't on repo)
 #TODO: (2) add explanation to README with info on assumptions of program (e.g. structure)
 #    and other details 
 #TODO: (3) make sure to mention security concerns with this method, how may be better 
@@ -24,9 +25,8 @@ import core.groove_id_program as main_program
 #    user, it could be DIRECTLY read from github and used? Think about this more
 #    also mention list of what would add to improve (e.g. tests to ensure platform
 #    independence, and that updates actually operate as expected) (POSSIBLY JUST MAKE
-#    A FILE LISTING AREAS FOR IMPROVEMENT / CONCERNS)
+#    A FILE LISTING AREAS FOR IMPROVEMENT / CONCERNS instead of directly in e-mail body)
 
-    
 
 def get_file_basename_from_mac_path(relative_path):
     '''
@@ -41,7 +41,6 @@ def get_file_basename_from_mac_path(relative_path):
     file_name = components[-1]
 
     return file_name 
-
 
 
 def update_modified_file(github_basepath, relative_path): 
@@ -61,16 +60,24 @@ def update_modified_file(github_basepath, relative_path):
     print("updating the file: ", relative_path)
     full_github_url = os.path.join(github_basepath, relative_path)
 
-    f = urllib.request.urlopen(full_github_url)
-    raw_bytes_from_git = f.read() 
-      
-    target_filename = get_file_basename_from_mac_path(relative_path)
-    target_dir = os.path.dirname(os.path.abspath(target_filename))
-    
-    os.chdir(target_dir)
-    
-    with open(target_filename, "wb") as local_file:
-        local_file.write(raw_bytes_from_git)
+    try:
+        f = urllib.request.urlopen(full_github_url)
+    except HTTPError as e:
+        print("\nError while attempting to open the url {}\n".format(full_github_url), 
+              file=sys.stderr)
+        raise(e)
+    else:
+        raw_bytes_from_git = f.read() 
+          
+        target_filename = get_file_basename_from_mac_path(relative_path)
+        target_dir = os.path.dirname(os.path.abspath(target_filename))
+        
+        os.chdir(target_dir)
+        
+        with open(target_filename, "wb") as local_file:
+            local_file.write(raw_bytes_from_git)
+            
+        
 
 
 def delete_file(relative_path):
@@ -142,8 +149,7 @@ def execute_update(json_update_list_file = "update_list.json"):
     for path in deleted_files:
         delete_file(path)
         
-    print("\nProgram Updated.\n")
-    
+    print("\nProgram Updated.\n")    
 
 
 def get_version(text):
@@ -206,7 +212,6 @@ def is_valid_version(version_str):
         return False
 
 
-
 def version_greater(version1, version2):
     '''
     :type version1: str
@@ -250,11 +255,13 @@ def version_greater(version1, version2):
            
     else:
         raise ValueError("versions given do not match the correct version format")
-
-  
+ 
 
 def update_needed():
-    
+    '''
+    Determines whether or not an update is needed by checking GitHub repo version against 
+    version stored in local version_info.txt file
+    '''
     global __version__, __master_version__
     
     update_needed = False
@@ -286,14 +293,13 @@ def run():
     print("master program version = ", str(__master_version__))
     
     if need_update:
-        print("\nTime for an update...")
         execute_update()
         importlib.reload(main_program)  #this is to capture update's changes to the main_program
         __version__ = get_current_version_id()
     else:
         print("\nProgram is up to date")
         
-    #Once reach this point, have either updated already or don't need an update  
+    #once reach this point, have either updated already or don't need an update  
     main_program.launch(__version__) 
 
         
